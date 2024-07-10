@@ -1,0 +1,7 @@
+.idea/
+dist/
+var/*
+!var/.gitkeep
+*/obj/
+*/bin/
+*.DotSettings.user
