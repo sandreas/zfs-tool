@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+permissions:
+  contents: write
 env:
   PROJECT_NAME: 'zfs-tool'
   PROJECT_PATH: 'zfs-tool/zfs-tool.csproj'
