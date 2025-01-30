@@ -1,0 +1,4 @@
+CREATION               NAME                                                                 WRITTEN
+Thu Aug  1  6:52 2024  rpool/data@zfs-auto-snap_monthly-2024-08-01-0452                        921G
+Sun Sep  1  6:52 2024  rpool/data@zfs-auto-snap_monthly-2024-09-01-0452                       3.97G
+Thu Dec  5 11:26 2024  rpool/data@backup-2024-12-05                                            469M

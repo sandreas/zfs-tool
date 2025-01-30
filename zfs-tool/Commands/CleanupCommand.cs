@@ -1,33 +1,35 @@
-using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
-using CliWrap;
-using CliWrap.Buffered;
-using NeoSmart.PrettySize;
 using Sandreas.SpectreConsoleHelpers.Commands;
 using Sandreas.SpectreConsoleHelpers.Services;
+using SmartFormat;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using zfs_tool.Commands.Settings;
 using zfs_tool.Directives;
 using zfs_tool.Models;
-using zfs_tool.Parsers;
+using zfs_tool.Services;
 
 namespace zfs_tool.Commands;
 
 
-public partial class CleanupCommand : CancellableAsyncCommand<CleanupCommandSettings>
+public class CleanupCommand : CancellableAsyncCommand<CleanupCommandSettings>
 {
     private readonly SpectreConsoleService _console;
+    private readonly ZfsLoader _loader;
+    private readonly CancellationTokenSource _cts;
+    private readonly SmartFormatter _formatter;
 
     /*
     [GeneratedRegex("([0-9]+[dhmsfz])", RegexOptions.IgnoreCase, "de-DE")]
     private static partial Regex TimeSpanSplitRegex();
 */
 
-    public CleanupCommand(SpectreConsoleService console)
+    public CleanupCommand(SpectreConsoleService console, ZfsLoader loader, CancellationTokenSource cts, SmartFormatter formatter)
     {
         _console = console;
+        _loader = loader;
+        _cts = cts;
+        _formatter = formatter;
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, CleanupCommandSettings settings,
@@ -41,32 +43,9 @@ public partial class CleanupCommand : CancellableAsyncCommand<CleanupCommandSett
             return 1;
         }
 
-        var snapshotFile = Environment.GetEnvironmentVariable("ZFS_TOOL_SNAPSHOT_FILE");
-        string snapList;
-        if (snapshotFile == null)
-        {
-            var result = await Cli.Wrap("zfs")
-                .WithArguments(new string[]
-                {
-                    "list", "-t", "snapshot", "-o", "creation,name,written"
-                })
-                .ExecuteBufferedAsync(cancellationToken);
-
-
-            if (!result.IsSuccess)
-            {
-                _console.Error.WriteLine($"zfs - could not read snapshots: {result.StandardError}{result.StandardOutput} ({result.ExitCode})");
-                return 1;
-            }
-            snapList = result.StandardOutput;
-        }
-        else
-        {
-            snapList = await File.ReadAllTextAsync(snapshotFile, cancellationToken);
-        }
+        var snapshotsEnumerable = await _loader.LoadSnapshots(settings.LoadExtensionSettings, _cts.Token);
+        var snapshots = snapshotsEnumerable.ToList();
         
-        var parser = new ZfsParser();
-        var snapshots = parser.ParseList(snapList).ToList();
         if (snapshots.Count == 0)
         {
             _console.Error.WriteLine("no snapshots found");
@@ -93,18 +72,19 @@ public partial class CleanupCommand : CancellableAsyncCommand<CleanupCommandSett
         }
 
         var orderBy = new OrderByDirective<ZfsSnapshot>(settings.OrderBy, OrderByHandler);
-        snapshotsToProcess = orderBy.Apply(snapshotsToProcess);
+        snapshotsToProcess = orderBy.Apply(snapshotsToProcess).ToList();
 
         var counter = 0;
+        var formatTemplate = settings.Format;
+        
+        formatTemplate = ReplacePaddedTemplateVariables(nameof(ZfsSnapshot.FullName), s => s.FullName.Length, formatTemplate, snapshots);
+        formatTemplate = ReplacePaddedTemplateVariables(nameof(ZfsSnapshot.Reclaim), s => s.Reclaim.Length, formatTemplate, snapshots);
+        formatTemplate = ReplacePaddedTemplateVariables(nameof(ZfsSnapshot.ReclaimSum), s => s.ReclaimSum.Length, formatTemplate, snapshots);
+        
         foreach (var snap in snapshotsToProcess)
         {
-            var outputString = settings.Format
-                .Replace("{name}", snap.Name)
-                .Replace("{creation}", snap.Creation.ToString(CultureInfo.InvariantCulture))
-                .Replace("{written}", new PrettySize(snap.WrittenBytes).ToString())
-                ;
-            
-            _console.WriteLine(outputString);
+            var output = _formatter.Format(formatTemplate, snap);
+            _console.WriteLine(output);
             counter++;
         }
 
@@ -116,6 +96,17 @@ public partial class CleanupCommand : CancellableAsyncCommand<CleanupCommandSett
         return 0;
     }
 
+    private static string ReplacePaddedTemplateVariables(string varName, Func<ZfsSnapshot, int> selector, string formatTemplate, List<ZfsSnapshot> snapshots)
+    {
+        var paddedVarName = "{" + varName + "Padded}";
+        if (!formatTemplate.Contains(paddedVarName))
+        {
+            return formatTemplate;
+        }
+        var padSize = snapshots.Max(selector) + 1;
+        return formatTemplate.Replace(paddedVarName, "{"+varName+",-" + padSize + "}");
+    }
+    
     private static Func<ZfsSnapshot, IComparable> OrderByHandler(string field) => field.ToLowerInvariant() switch
     {
         "written" => f => f.WrittenBytes,

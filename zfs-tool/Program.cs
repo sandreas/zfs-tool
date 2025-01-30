@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Sandreas.SpectreConsoleHelpers.DependencyInjection;
 using Sandreas.SpectreConsoleHelpers.Services;
+using SmartFormat;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using zfs_tool.Commands;
+using zfs_tool.Services;
 
 try
 {
@@ -15,6 +17,9 @@ try
     services.AddSingleton(_ => settingsProvider);
     services.AddSingleton<SpectreConsoleService>();
     services.AddSingleton<CancellationTokenSource>();
+    services.AddSingleton<SmartFormatter>();
+    services.AddSingleton<ZfsParser>();
+    services.AddSingleton<ZfsLoader>();
     var app = new CommandApp(new CustomTypeRegistrar(services));
 
     app.Configure(config =>

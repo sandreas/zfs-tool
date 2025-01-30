@@ -1,0 +1,2 @@
+would destroy rpool/data@zfs-auto-snap_monthly-2024-09-01-0452
+would reclaim 236M

@@ -3,10 +3,34 @@ using System.Text.RegularExpressions;
 using NeoSmart.PrettySize;
 using zfs_tool.Models;
 
-namespace zfs_tool.Parsers;
+namespace zfs_tool.Services;
 
 public class ZfsParser
 {
+    public long ParseReclaimBytes(string reclaimOutput)
+    {
+        var reader = new StringReader(reclaimOutput);
+        string? line;
+        long bytesReclaimed = -1;
+        while ((line = reader.ReadLine()) != null)
+        {
+            var lowerLine = line.ToLowerInvariant();
+            if (!lowerLine.StartsWith("would reclaim "))
+            {
+                continue;
+            }
+            var words = lowerLine.Split(" ");
+            if (!TryParseSize(words[2].Trim().ToLowerInvariant(), out var writtenInBytes))
+            {
+                continue;
+            }
+            bytesReclaimed = writtenInBytes;
+            break;
+        }
+
+        return bytesReclaimed;
+    }
+    
     public IEnumerable<ZfsSnapshot> ParseList(string output)
     {
         var reader = new StringReader(output);
@@ -39,16 +63,25 @@ public class ZfsParser
                 continue;
             }
 
-            var name = cols[1].Trim();
-            
+            var fullName = cols[1].Trim();
+            var path = fullName;
+            var name = "";
+            if (fullName.Contains('@'))
+            {
+                var parts = fullName.Split('@');
+                path = parts[0];
+                name = parts[1];
+            }
             if (!TryParseSize(cols[2].Trim().ToLowerInvariant(), out var writtenInBytes))
             {
                 continue;
             }
-
+            
             yield return new ZfsSnapshot()
             {
+                Path = path,
                 Name = name,
+                FullName = fullName,
                 Creation = creation,
                 WrittenBytes = writtenInBytes
             };

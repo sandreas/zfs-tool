@@ -1,0 +1,2 @@
+would destroy rpool/data@backup-2024-12-05
+would reclaim 89.1M

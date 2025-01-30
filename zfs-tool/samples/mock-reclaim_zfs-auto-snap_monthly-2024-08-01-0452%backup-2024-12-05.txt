@@ -1,0 +1,7 @@
+would destroy rpool/data@zfs-auto-snap_monthly-2024-08-01-0452
+would destroy rpool/data@zfs-auto-snap_monthly-2024-09-01-0452
+would destroy rpool/data@zfs-auto-snap_monthly-2024-10-01-0452
+would destroy rpool/data@zfs-auto-snap_monthly-2024-11-01-0552
+would destroy rpool/data@zfs-auto-snap_monthly-2024-12-01-0552
+would destroy rpool/data@backup-2024-12-05
+would reclaim 260G

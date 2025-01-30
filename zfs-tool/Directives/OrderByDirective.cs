@@ -8,7 +8,7 @@ public class OrderByDirective<T>
 {
     private readonly (Func<T,IComparable> comparator, bool ascending)[] _orderBy;
     private const char FieldSeparator = ',';
-    private const char MarkerDesc = '!';
+    private const char MarkerDesc = '-';
     
     public OrderByDirective(string orderBy, Func<string, Func<T, IComparable>> keySelector)
     {
