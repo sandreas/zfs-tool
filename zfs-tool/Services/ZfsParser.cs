@@ -88,7 +88,7 @@ public class ZfsParser
         }
     }
 
-    private IEnumerable<int> CalculateColumnWidths(string line)
+    private static IEnumerable<int> CalculateColumnWidths(string line)
     {
         var currentWidth = 0;
         var lastChar = ' ';
@@ -109,7 +109,7 @@ public class ZfsParser
         }
     }
 
-    private bool TryParseSize(string sizeAsString, out long o)
+    public static bool TryParseSize(string sizeAsString, out long o)
     {
         var lastChar = sizeAsString[^1];
         var factor = lastChar switch
@@ -143,7 +143,7 @@ public class ZfsParser
         return false;
     }
 
-    private bool TryParseDate(string creationAsString, out DateTime date)
+    public static bool TryParseDate(string creationAsString, out DateTime date)
     {
         var trimmedCreationAsString = Regex.Replace(creationAsString[4..], "\\s+", " ");
         

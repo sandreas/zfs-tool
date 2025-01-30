@@ -17,7 +17,7 @@ try
     services.AddSingleton(_ => settingsProvider);
     services.AddSingleton<SpectreConsoleService>();
     services.AddSingleton<CancellationTokenSource>();
-    services.AddSingleton<SmartFormatter>();
+    services.AddSingleton<SmartFormatter>(_ => Smart.Default);
     services.AddSingleton<ZfsParser>();
     services.AddSingleton<ZfsLoader>();
     var app = new CommandApp(new CustomTypeRegistrar(services));
@@ -30,9 +30,9 @@ try
         config.SetApplicationName("zfs-tool");
         config.SetApplicationVersion("0.0.1");
         config.ValidateExamples();
-        config.AddCommand<CleanupCommand>("cleanup")
-            .WithDescription("cleanup zfs snapshots")
-            // .WithExample("dump", "--help")
+        config.AddCommand<ListSnapshotsCommand>("list-snapshots")
+            .WithDescription("list and filter zfs snapshots")
+            .WithExample("list-snapshots", "--help")
             // .WithExample("dump", "input.mp3")
             // .WithExample("dump", "audio-directory/", "--include-extension", "m4b", "--include-extension", "mp3", "--format", "ffmetadata", "--include-property", "title", "--include-property", "artist")
             // .WithExample("dump", "input.mp3", "--format", "json", "--query", "$.meta.album")

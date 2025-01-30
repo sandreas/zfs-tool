@@ -1,6 +1,7 @@
 using CliWrap;
 using CliWrap.Buffered;
 using zfs_tool.Commands.Settings;
+using zfs_tool.Enums;
 using zfs_tool.Models;
 
 namespace zfs_tool.Services;
@@ -33,28 +34,21 @@ public class ZfsLoader
             message);
     }
 
-    public async Task<IEnumerable<ZfsSnapshot>> LoadSnapshots(LoadExtensions extensions, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ZfsSnapshot>> LoadSnapshots(ExtraZfsProperties extensions, CancellationToken cancellationToken)
     {
         UpdateManualLastResult();
         var commandOutput = await GetZfsCommandOutput("all-snapshots", new[]
         {
             "list", "-t", "snapshot", "-o", "creation,name,written"
         }, cancellationToken);
-        if (string.IsNullOrEmpty(commandOutput))
-        {
-            return new List<ZfsSnapshot>();
-        }
         
-        // return commandOutput == null ? new List<ZfsSnapshot>() : _parser.ParseList(commandOutput);
-        var snapshots = _parser.ParseList(commandOutput).ToList();
-        _ = LoadAllSnapshotReclaimsAsync(snapshots, extensions, cancellationToken);
-        return snapshots;
+        return string.IsNullOrEmpty(commandOutput) ? new List<ZfsSnapshot>() : _parser.ParseList(commandOutput);
     }
 
     
-    public async Task<bool> LoadAllSnapshotReclaimsAsync(IEnumerable<ZfsSnapshot> snapshots, LoadExtensions extensions, CancellationToken cancellationToken)
+    public async Task<bool> LoadAllSnapshotReclaimsAsync(IEnumerable<ZfsSnapshot> snapshots, ExtraZfsProperties extensions, CancellationToken cancellationToken)
     {
-        if (!extensions.HasFlag(LoadExtensions.Reclaim) && !extensions.HasFlag(LoadExtensions.ReclaimSum))
+        if (!extensions.HasFlag(ExtraZfsProperties.Reclaim) && !extensions.HasFlag(ExtraZfsProperties.ReclaimSum))
         {
             return false;
         }
@@ -78,10 +72,11 @@ public class ZfsLoader
 
                 if (snapshot == firstSnapshot)
                 {
+                    snapshot.ReclaimSumBytes = snapshot.ReclaimBytes;
                     continue;
                 }
                 
-                if (!extensions.HasFlag(LoadExtensions.ReclaimSum))
+                if (!extensions.HasFlag(ExtraZfsProperties.ReclaimSum))
                 {
                     continue;
                 }
