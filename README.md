@@ -5,6 +5,18 @@ Small command line tool that helps with various zfs tasks, e.g. cleanup snapshot
 
 ZFS is great as a filesystem and has good tools, but sometimes it can be a bit tricky to analyse and cleanup snapshots with the given tools, especially if you would like to gather free space. This is where `zfs-tool` should help.
 
+## Installation
+
+```bash
+wget https://github.com/sandreas/zfs-tool/releases/download/v0.0.2/zfs-tool-0.0.2-linux-x64.tar.gz
+tar xzf zfs-tool-*.tar.gz
+mv zfs-tool-*/zfs-tool .
+rmdir zfs-tool-*/
+rm zfs-tool-*.tar.gz
+
+./zfs-tool --version
+```
+
 ## `list-snapshots`
 
 The `list-snapshots` command can be used to filter, order and print out snapshots in various ways.
