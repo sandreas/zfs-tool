@@ -23,5 +23,8 @@
     <ItemGroup>
       <Folder Include="Parsers\" />
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <TrimmerRootDescriptor Include="zfs-tool.TrimmerRootDescriptor.xml" />
+    </ItemGroup>
 </Project>
