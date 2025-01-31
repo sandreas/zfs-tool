@@ -121,7 +121,7 @@ public class ListSnapshotsCommand : CancellableAsyncCommand<ListSnapshotsCommand
 
             
             var snapshotsToDestroy = new List<ZfsSnapshot>();
-            var aquiredSpace = 0l;
+            var aquiredSpace = 0L;
             var snapGroups = new Dictionary<string, ZfsSnapshot>();
             while (snapshotsToProcess.Count > 0 && aquiredSpace < requiredSpace)
             {
@@ -178,7 +178,7 @@ public class ListSnapshotsCommand : CancellableAsyncCommand<ListSnapshotsCommand
                     WriteInvalidFormatError("the format string does not produce any readable output", settings.Format, formatTemplate);
                     return 1;
                 }
-                _console.WriteLine(output);
+                _console.WriteNoBreakLine(output);
                 counter++;
             }
             catch (Exception e)

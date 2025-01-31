@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>zfs_tool</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -13,9 +13,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CliWrap" Version="3.6.6" />
+        <PackageReference Include="CliWrap" Version="3.7.1" />
         <PackageReference Include="NeoSmart.PrettySize" Version="3.1.1" />
-        <PackageReference Include="Sandreas.SpectreConsoleHelpers" Version="0.0.2" />
+        <PackageReference Include="Sandreas.SpectreConsoleHelpers" Version="0.0.4" />
         <PackageReference Include="SmartFormat" Version="3.5.3" />
         <PackageReference Include="Spectre.Console.Cli" Version="0.49.1" />
     </ItemGroup>

@@ -10,8 +10,8 @@ env:
   PROJECT_NAME: 'zfs-tool'
   PROJECT_PATH: 'zfs-tool/zfs-tool.csproj'
   PROJECT_OUTPUT_PATH: ${{ github.workspace }}/output/
-  DOTNET_VERSION: '6.0.405'
-  DOTNET_FRAMEWORK: 'net6.0'
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_FRAMEWORK: 'net8.0'
 jobs:
   release:
     name: Release
@@ -57,10 +57,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           source-url: "https://nuget.pkg.github.com/sandreas/index.json"
@@ -80,7 +80,7 @@ jobs:
           
           echo "::set-output name=release_notes::$release_notes"
           
-          sed -i.bak "s/<TargetFramework>net6.0<\/TargetFramework>/<TargetFramework>${{ env.DOTNET_FRAMEWORK }}<\/TargetFramework>/g" ${{ env.PROJECT_PATH }}
+          sed -i.bak "s/<TargetFramework>net8.0<\/TargetFramework>/<TargetFramework>${{ env.DOTNET_FRAMEWORK }}<\/TargetFramework>/g" ${{ env.PROJECT_PATH }}
           
           if [ "${{ matrix.target }}" == "osx-arm64" ]; then
             dotnet publish ${{ env.PROJECT_PATH }} --framework ${{ env.DOTNET_FRAMEWORK }} --runtime "${{ matrix.target }}" -c Release -p:EnableCompressionInSingleFile=false -p:PublishSingleFile=true --self-contained true -p:PublishReadyToRun=true -p:PublishTrimmed=true -o "$release_name"
@@ -90,11 +90,13 @@ jobs:
           
           
           if [ "${{ matrix.target }}" == "win-x64" ]; then
-            7z a -tzip "${release_name}.zip" "./${release_name}/zfs-tool.exe"
+            7z a -tzip "${release_name}.zip" "./${release_name}/${{ env.PROJECT_NAME }}.exe"
           else
-            tar czvf "${release_name}.tar.gz" "$release_name/zfs-tool"
+            tar czvf "${release_name}.tar.gz" "$release_name/${{ env.PROJECT_NAME }}"
           fi
           rm -r "$release_name"
+      - name: Test
+        run: dotnet test --configuration Release /p:Version=${{ steps.version.outputs.version-without-v }} --no-build
       - name: Publish
         uses: softprops/action-gh-release@v1
         with:
