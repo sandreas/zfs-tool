@@ -28,7 +28,7 @@ try
         config.UseStrictParsing();
         config.CaseSensitivity(CaseSensitivity.None);
         config.SetApplicationName("zfs-tool");
-        config.SetApplicationVersion("0.0.1");
+        config.SetApplicationVersion("0.0.2");
         config.ValidateExamples();
         config.AddCommand<ListSnapshotsCommand>("list-snapshots")
             .WithDescription("list and filter zfs snapshots")
