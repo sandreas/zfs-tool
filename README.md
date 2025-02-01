@@ -67,8 +67,9 @@ Properties can be used to format the output as well as filter or format the cont
 - `Reclaim`² - relaimed space if the snapshot is destroyed
 - `ReclaimSum`² - aggregated reclaimed space, if snapshot-range from this path is destroyed
 
-¹ these properties have a `...Padded` pendant to allow table like formatting 
-² these `--extra-properties` are probably slow, they need to be calculated or determined by extra shell commands
+**Footnotes**
+- ¹ have a `...Padded` pendant to allow table like formatting, e.g. `{FullNamePadded}`
+- ² these so called `--extra-properties` are probably slow, need to be calculated or determined by extra shell commands and therefore need to be manually activated unless required
 
 ### Parameters:
 
