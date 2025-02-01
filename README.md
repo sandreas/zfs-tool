@@ -8,12 +8,18 @@ ZFS is great as a filesystem and has good tools, but sometimes it can be a bit t
 ## Installation
 
 ```bash
+# download release archive (linux x64)
 wget https://github.com/sandreas/zfs-tool/releases/download/v0.0.2/zfs-tool-0.0.2-linux-x64.tar.gz
+# extract archive
 tar xzf zfs-tool-*.tar.gz
+# move zfs-tool to current dir
 mv zfs-tool-*/zfs-tool .
+
+# cleanup remaining dirs and files
 rmdir zfs-tool-*/
 rm zfs-tool-*.tar.gz
 
+# run zfs tool an show version
 ./zfs-tool --version
 ```
 
@@ -24,19 +30,20 @@ The `list-snapshots` command can be used to filter, order and print out snapshot
 ### TL;DR - examples
 
 ```bash
-# list snapshots ordered by written property
+# list snapshots ordered by "written" property
 zfs-tool list-snapshots --order-by="written"
 
-# list snapshots on rpool/data with extra property "Reclaim"
+# list snapshots on rpool/data with extra property "Reclaim", showing the space reclaimed after deletion
 zfs-tool list-snapshots --contains="rpool/data@" --extra-properties="Reclaim"
 
-# list snapshots ordered by path and descending creation, limiting to 5 newest snapshos per dataset
+# list snapshots ordered by "path asc, creation desc", thereby limiting to 5 newest snapshos per dataset
 zfs-tool list-snapshots --order-by="path,-creation" --limit="5"
 
-# custom output template with extra properties
-zfs-tool list-snapshots --keep-time="180d" --format="zfs destroy {FullName} # {Creation} {Written}"
+# custom output template with to destroy snapshots older than 180 days
+zfs-tool list-snapshots --keep-time="180d" --format="zfs destroy {FullName}     # {Creation} {Written}"
 
-# list all snapshots in rpool/data containing @backup that need to be deleted to gather 2 GB space
+# list all snapshots in rpool/data containing @backup that need to be deleted to gather 1 GB space
+# CAUTION: this will automatically gather ReclaimSum for every matching snapshot and take long
 zfs-tool list-snapshots --contains='rpool/data@' --contains='@backup' --required-space='1G'
 
 # create custom destroy script for snapshots older than 180 days
@@ -45,7 +52,7 @@ zfs-tool list-snapshots \
           --contains="rpool/data@" \
           --keep-time="180d" \
           --extra-properties=All \
-          --format="zfs destroy {FullName}     # {Creation:yyyy-MM-dd HH\\:mm}  rcl: {ReclaimPadded} agg: {ReclaimSumPadded}" >> cleanup.sh
+          --format="zfs destroy {FullName}     # {Creation:yyyy-MM-dd HH\\:mm}  rcl: {ReclaimPadded} sum: {ReclaimSumPadded}" >> cleanup.sh
 
 ```
 ### Properties:
