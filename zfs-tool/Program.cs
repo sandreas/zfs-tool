@@ -18,6 +18,8 @@ try
     services.AddSingleton<SpectreConsoleService>();
     services.AddSingleton<CancellationTokenSource>();
     services.AddSingleton<SmartFormatter>(_ => Smart.Default);
+    services.AddSingleton<ZfsExecutor>();
+    services.AddSingleton<ZfsVersionChecker>();
     services.AddSingleton<ZfsParser>();
     services.AddSingleton<ZfsLoader>();
     var app = new CommandApp(new CustomTypeRegistrar(services));
@@ -28,7 +30,7 @@ try
         config.UseStrictParsing();
         config.CaseSensitivity(CaseSensitivity.None);
         config.SetApplicationName("zfs-tool");
-        config.SetApplicationVersion("0.0.2");
+        config.SetApplicationVersion("0.0.3");
         config.ValidateExamples();
         config.AddCommand<ListSnapshotsCommand>("list-snapshots")
             .WithDescription("list and filter zfs snapshots")

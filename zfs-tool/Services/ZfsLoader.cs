@@ -8,11 +8,17 @@ namespace zfs_tool.Services;
 
 public class ZfsLoader
 {
+    private readonly ZfsExecutor _zfs;
     private readonly ZfsParser _parser;
+    private readonly ZfsVersionChecker _checker;
     public BufferedCommandResult LastResult { get; set; } = new(1, DateTimeOffset.MinValue, DateTimeOffset.MaxValue, "", "Uninitialized class property, please call at least one method of ZfsLoader class");
+
+
     
-    public ZfsLoader(ZfsParser parser)
+    public ZfsLoader(ZfsExecutor zfs, ZfsVersionChecker checker, ZfsParser parser)
     {
+        _zfs = zfs;
+        _checker = checker;
         _parser = parser;
     }
     
@@ -37,10 +43,9 @@ public class ZfsLoader
     public async Task<IEnumerable<ZfsSnapshot>> LoadSnapshots(ExtraZfsProperties extensions, CancellationToken cancellationToken)
     {
         UpdateManualLastResult();
-        var commandOutput = await GetZfsCommandOutput("all-snapshots", new[]
-        {
+        var commandOutput = await GetZfsCommandOutput("all-snapshots", [
             "list", "-t", "snapshot", "-o", "creation,name,written"
-        }, cancellationToken);
+        ], cancellationToken);
         
         return string.IsNullOrEmpty(commandOutput) ? new List<ZfsSnapshot>() : _parser.ParseList(commandOutput);
     }
@@ -119,17 +124,20 @@ public class ZfsLoader
 
     private async Task<string> GetZfsCommandOutput(string mockKey, IEnumerable<string> arguments, CancellationToken cancellationToken)
     {
-// #if DEBUG
-//        return await GetMockFileContent(mockKey, cancellationToken) ?? "";
-// #endif        
+        if (!await _checker.LoadVersionAsync(cancellationToken))
+        {
+            #if DEBUG
+                return await GetMockFileContent(mockKey, cancellationToken) ?? "";
+            #endif
+            
+            return "";
+        }
+     
         
         // to load reclaims you have to simulate a destroy (-n) and enable verbose output (-v)
         // this is 
         var environmentVariables = new Dictionary<string, string?> {{"LANG", "en"}};
-        LastResult = await Cli.Wrap("zfs")
-            .WithArguments(arguments)
-            .WithEnvironmentVariables(environmentVariables)
-            .ExecuteBufferedAsync(cancellationToken);
+        LastResult = await _zfs.ExecuteAsync(arguments, cancellationToken);
         return !LastResult.IsSuccess ? "" : LastResult.StandardOutput;
     }
 }
