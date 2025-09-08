@@ -36,9 +36,6 @@ public class ListSnapshotsCommand : CancellableAsyncCommand<ListSnapshotsCommand
     public override async Task<int> ExecuteAsync(CommandContext context, ListSnapshotsCommandSettings settings,
         CancellationToken cancellationToken)
     {
-
-
-
         var snapshotsEnumerable = await _loader.LoadSnapshots(settings.ExtraProperties, _cts.Token);
         var snapshots = snapshotsEnumerable.ToList();
         
@@ -140,7 +137,7 @@ public class ListSnapshotsCommand : CancellableAsyncCommand<ListSnapshotsCommand
 
             if (aquiredSpace < requiredSpace)
             {
-                _console.Error.WriteLine($"Not enough snapshots to aquire required space of ${settings.RequiredSpace}");
+                _console.Error.WriteLine($"Not enough snapshots to acquire required space of {settings.RequiredSpace}");
                 return 1;
             }
 

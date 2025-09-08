@@ -7,6 +7,7 @@ namespace zfs_tool.Services;
 
 public class ZfsParser
 {
+    public List<string> Errors { get; set; } = [];
     public long ParseReclaimBytes(string reclaimOutput)
     {
         var reader = new StringReader(reclaimOutput);
@@ -39,6 +40,7 @@ public class ZfsParser
         var columnWidths = new List<int>();
         while ((line = reader.ReadLine()) != null)
         {
+            var originalLine = line;
             lineNum++;
             if (lineNum == 1)
             {
@@ -47,11 +49,40 @@ public class ZfsParser
             }
 
             var cols = new List<string>();
-            foreach (var colWidth in columnWidths)
+            var isZfsOutputBug = false;
+            try
             {
-                cols.Add(line[..colWidth]);
-                line = line[colWidth..];
+                foreach (var colWidth in columnWidths)
+                {
+                    // bug in zfs - output is shifted / shortened 1 char to the left
+                    if (line.Length < colWidth)
+                    {
+                        isZfsOutputBug = true;
+                        line = originalLine;
+                        break;
+                    }
+                    
+                    cols.Add(line[..colWidth]);
+                    line = line[colWidth..];
+                }
+                
+                
+                if (isZfsOutputBug)
+                {
+                    cols.Clear();
+                    foreach (var bogusColWidth in columnWidths)
+                    {
+                        var shiftedColWidth = Math.Max(0, bogusColWidth - 1);
+                        cols.Add(line[..shiftedColWidth]);
+                        line = line[shiftedColWidth..];
+                    }
+                }
             }
+            catch (Exception e)
+            {
+                Errors.Add($"Error in column parsing: {e.Message}");
+            }
+
             
             if (cols.Count != 3)
             {

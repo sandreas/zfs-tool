@@ -119,14 +119,16 @@ public class ZfsLoader
 
     private async Task<string> GetZfsCommandOutput(string mockKey, IEnumerable<string> arguments, CancellationToken cancellationToken)
     {
-#if DEBUG
-        return await GetMockFileContent(mockKey, cancellationToken) ?? "";
-#endif        
+// #if DEBUG
+//        return await GetMockFileContent(mockKey, cancellationToken) ?? "";
+// #endif        
         
         // to load reclaims you have to simulate a destroy (-n) and enable verbose output (-v)
         // this is 
+        var environmentVariables = new Dictionary<string, string?> {{"LANG", "en"}};
         LastResult = await Cli.Wrap("zfs")
             .WithArguments(arguments)
+            .WithEnvironmentVariables(environmentVariables)
             .ExecuteBufferedAsync(cancellationToken);
         return !LastResult.IsSuccess ? "" : LastResult.StandardOutput;
     }
