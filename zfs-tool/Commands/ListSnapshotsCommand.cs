@@ -138,6 +138,27 @@ public class ListSnapshotsCommand : CancellableAsyncCommand<ListSnapshotsCommand
             if (aquiredSpace < requiredSpace)
             {
                 _console.Error.WriteLine($"Not enough snapshots to acquire required space of {settings.RequiredSpace}");
+                var settingsList = new List<string>()
+                {
+                    $"--keep-time={settings.KeepTime}",
+                    $"--required-space={settings.RequiredSpace}",
+                };
+                if (settings.Limit > 0)
+                {
+                    settingsList.Add($"--limit={settings.Limit}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(settings.Contains))
+                {
+                    settingsList.Add($"--contains={settings.Contains}");
+                }
+                if (!string.IsNullOrWhiteSpace(settings.Matches))
+                {
+                    settingsList.Add($"--matches={settings.Matches}");
+                }
+                
+
+                _console.Error.WriteLine($"You could try to change the filter values to include more snapshots ({string.Join(" ", settingsList)})");
                 return 1;
             }
 

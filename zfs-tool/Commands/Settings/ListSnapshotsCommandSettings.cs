@@ -7,7 +7,7 @@ public class ListSnapshotsCommandSettings: AbstractCommandSettings
 {
     public const string DefaultFormat = "{Creation:yyyy-MM-dd HH\\:mm} {FullNamePadded} {WrittenPadded}";
     public const string DefaultReclaimFormat = "{Creation:yyyy-MM-dd HH\\:mm} {FullNamePadded} {WrittenPadded} {ReclaimPadded} {ReclaimSumPadded}";
-    public const string DefaultRequiredSpaceFormat = "zfs destroy {FullName}     # {Creation:yyyy-MM-dd HH\\:mm}  rcl: {ReclaimPadded} agg: {ReclaimSumPadded}";
+    public const string DefaultRequiredSpaceFormat = "# {Creation:yyyy-MM-dd HH\\:mm}  rcl: {ReclaimPadded} agg: {ReclaimSumPadded}\nzfs destroy {FullName}\n";
 
     [CommandOption("--keep-time")] public string KeepTime { get; set; } = "30d";
     [CommandOption("--format")] public string Format { get; set; } = DefaultFormat;
