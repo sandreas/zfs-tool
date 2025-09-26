@@ -9,7 +9,7 @@ ZFS is great as a filesystem and has good tools, but sometimes it can be a bit t
 
 ```bash
 # download release archive (linux x64)
-wget https://github.com/sandreas/zfs-tool/releases/download/v0.0.2/zfs-tool-0.0.2-linux-x64.tar.gz
+wget https://github.com/sandreas/zfs-tool/releases/download/v0.0.3/zfs-tool-0.0.3-linux-x64.tar.gz
 # extract archive
 tar xzf zfs-tool-*.tar.gz
 # move zfs-tool to current dir
