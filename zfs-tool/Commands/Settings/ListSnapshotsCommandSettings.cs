@@ -9,7 +9,7 @@ public class ListSnapshotsCommandSettings: AbstractCommandSettings
     public const string DefaultReclaimFormat = "{Creation:yyyy-MM-dd HH\\:mm} {FullNamePadded} {WrittenPadded} {ReclaimPadded} {ReclaimSumPadded}";
     public const string DefaultRequiredSpaceFormat = "# {Creation:yyyy-MM-dd HH\\:mm}  rcl: {ReclaimPadded} agg: {ReclaimSumPadded}\nzfs destroy {FullName}\n";
 
-    [CommandOption("--keep-time")] public string KeepTime { get; set; } = "30d";
+    [CommandOption("--keep-time")] public string KeepTime { get; set; } = "";
     [CommandOption("--format")] public string Format { get; set; } = DefaultFormat;
     [CommandOption("--contains")] public string Contains { get; set; } = "";
     [CommandOption("--matches")] public string Matches { get; set; } = "";
