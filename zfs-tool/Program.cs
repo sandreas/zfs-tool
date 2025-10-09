@@ -30,14 +30,11 @@ try
         config.UseStrictParsing();
         config.CaseSensitivity(CaseSensitivity.None);
         config.SetApplicationName("zfs-tool");
-        config.SetApplicationVersion("0.0.3");
+        config.SetApplicationVersion("0.0.4");
         config.ValidateExamples();
         config.AddCommand<ListSnapshotsCommand>("list-snapshots")
             .WithDescription("list and filter zfs snapshots")
             .WithExample("list-snapshots", "--help")
-            // .WithExample("dump", "input.mp3")
-            // .WithExample("dump", "audio-directory/", "--include-extension", "m4b", "--include-extension", "mp3", "--format", "ffmetadata", "--include-property", "title", "--include-property", "artist")
-            // .WithExample("dump", "input.mp3", "--format", "json", "--query", "$.meta.album")
             ;
         
 
